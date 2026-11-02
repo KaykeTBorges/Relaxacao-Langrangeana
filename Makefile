@@ -1,10 +1,10 @@
 CXX = g++
-CXXFLAGS = -O3 -Wall -std=c++17
+CXXFLAGS = -O3 -Wall -std=c++17 -Iinclude
 
 TARGET = relaxacao
 
-SRCS = main.cpp data.cpp node.cpp kruskal.cpp subgradiente.cpp bnb.cpp
-HEADERS = data.h node.h kruskal.h subgradiente.h bnb.h
+SRCS = src/main.cpp src/data.cpp src/node.cpp src/kruskal.cpp src/subgradiente.cpp src/bnb.cpp
+HEADERS = include/data.h include/node.h include/kruskal.h include/subgradiente.h include/bnb.h
 
 # Instância padrão caso nenhuma seja especificada no comando
 INSTANCE ?= instancias/burma14.tsp
