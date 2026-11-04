@@ -1,6 +1,6 @@
 #include "kruskal.h"
 
-Kruskal::Kruskal(double ** dist, int n) {
+Kruskal::Kruskal(const std::vector<std::vector<double>>& dist, int n) {
     for (int i = 2; i <= n; i++) {
         for (int j = i + 1; j <= n; j++) {
 			// Adiciona aresta apenas se não for proibida custo < INFINITE
@@ -39,8 +39,9 @@ double Kruskal::MST(int nodes){
 	initDisjoint(nodes);
 
 	double cost = 0;
+	int arestasNecessarias = nodes - 2;
 
-	while(!graph.empty()){
+	while(!graph.empty() && (int)edges.size() < arestasNecessarias){
 		pair<double, Edge> p = graph.top();
 		graph.pop();
 

@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -O3 -Wall -std=c++17 -Iinclude
+CXXFLAGS = -O3 -Wall -std=c++23 -Iinclude
 
 TARGET = relaxacao
 

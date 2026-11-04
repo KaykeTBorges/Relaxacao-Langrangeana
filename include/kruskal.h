@@ -15,7 +15,7 @@ typedef vector<Edge> OneTree;
 
 class Kruskal{
 public:
-	Kruskal(double ** dist, int n);
+	Kruskal(const std::vector<std::vector<double>>& dist, int n);
 
 	double MST(int nodes);
 	OneTree getEdges();

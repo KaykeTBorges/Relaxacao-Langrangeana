@@ -1,37 +1,23 @@
 #include "subgradiente.h"
+#include "poda.h"
 #include <cmath>
 #include <algorithm>
 
-void SubgradienteSolver::alocarBuffers(int n) {
-    custoModificado = new double*[n + 1];
-    isForbidden = new bool*[n + 1];
-    for (int i = 1; i <= n; i++) {
-        custoModificado[i] = new double[n + 1];
-        isForbidden[i] = new bool[n + 1];
-    }
-}
+void SubgradienteSolver::assegurarBuffers(int n) {
+    if (bufferSize == n) return;
 
-void SubgradienteSolver::liberarBuffers(int n) {
-    for (int i = 1; i <= n; i++) {
-        delete[] custoModificado[i];
-        delete[] isForbidden[i];
-    }
-    delete[] custoModificado;
-    delete[] isForbidden;
+    custoModificado.assign(n + 1, std::vector<double>(n + 1, 0.0));
+    dist.assign(n + 1, std::vector<double>(n + 1, 0.0));
+
+    for (int i = 1; i <= n; i++)
+        for (int j = i + 1; j <= n; j++)
+            dist[i][j] = Data::getInstance().getDistance(i, j);
+
+    bufferSize = n;
 }
 
 double SubgradienteSolver::run(Node& node, double UB, int n) {
-    alocarBuffers(n);
-
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= n; j++) {
-            isForbidden[i][j] = false;
-        }
-    }
-    for (const auto& arc : node.forbidden_arcs) {
-        isForbidden[arc.first][arc.second] = true;
-        isForbidden[arc.second][arc.first] = true;
-    }
+    assegurarBuffers(n);
 
     // melhor lower_bound, começa -infinito porque queremos maximizar
     // quanto maior, mais proximo do otimo com base no dual lagrangiano
@@ -54,14 +40,17 @@ double SubgradienteSolver::run(Node& node, double UB, int n) {
         double lambda_sum = 0.0;
         for (int i = 1; i <= n; i++) {
             lambda_sum += node.lambda[i];
-            for (int j = 1; j <= n; j++) {
-                if (i == j || isForbidden[i][j]) {
-                    custoModificado[i][j] = INFINITE; // diagonal principal ou arco proibido
-                } else {
-                    custoModificado[i][j] = Data::getInstance().getDistance(i, j) - node.lambda[i] - node.lambda[j];
-                }
+
+            for (int j = i+1; j <= n; j++) {
+                    custoModificado[i][j] = dist[i][j] - node.lambda[i] - node.lambda[j];
             }
         }
+
+        // no calculo do Kruskal só entra o triangulo superior da matrix, por isso min e max de indices
+        // isso evitar ficar criando uma matrix de forbidden como eu estava fazendo e aplica só depois de todos os calculos
+        // já percorrendo direto os forbidden advindos do node em especifico
+        for (const auto& arc : node.forbidden_arcs)
+            custoModificado[std::min(arc.first, arc.second)][std::max(arc.first, arc.second)] = INFINITE;
 
         // resolve 1-arvore e calcula w
         double cost1Tree = node.calculateOneTree(custoModificado, n);
@@ -98,7 +87,7 @@ double SubgradienteSolver::run(Node& node, double UB, int n) {
         }     
 
         // parada antecipada se encontrou ciclo hamiltoniano / ultrapassou o upper_bound -> quebra / gradiente nulo -> evitar divisão por zero
-        if (is_ciclo || w >= UB || somatorio_graus == 0) {
+        if (is_ciclo || podavel(w, UB) || somatorio_graus == 0) {
             break;
         }
 
@@ -115,8 +104,6 @@ double SubgradienteSolver::run(Node& node, double UB, int n) {
     node.degrees = degrees_star;
     node.one_tree_edges = edges_star;
     node.is_ciclo = is_ciclo_star;
-
-    liberarBuffers(n);
 
     return w_star;
 }

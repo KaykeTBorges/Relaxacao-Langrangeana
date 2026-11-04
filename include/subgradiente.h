@@ -3,15 +3,17 @@
 
 #include "node.h"
 #include "data.h"
+#include <vector>
 
 class SubgradienteSolver {
 private:
-    int n;
-    double** custoModificado;
-    bool** isForbidden;
+    std::vector<std::vector<double>> custoModificado;
+    // aqui é uma melhoria, visto que as distancias são usadas n2 / 2 vezes
+    // foi visto muito em APA queria trazer para cá, para testar
+    std::vector<std::vector<double>> dist;
+    int bufferSize = 0;
 
-    void alocarBuffers(int n);
-    void liberarBuffers(int n);
+    void assegurarBuffers(int n);
 
 public:
     // só a função que executa geral o subgradiente

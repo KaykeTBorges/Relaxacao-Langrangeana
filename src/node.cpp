@@ -2,7 +2,7 @@
 #include "data.h"
 #include <queue>
 
-double Node::calculateOneTree(double** custoModificado, int n){
+double Node::calculateOneTree(const std::vector<std::vector<double>>& custoModificado, int n){
     this->one_tree_edges.clear();
     this->degrees.assign(n+1, 0);
 
