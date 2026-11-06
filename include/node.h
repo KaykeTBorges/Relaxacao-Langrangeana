@@ -17,8 +17,8 @@ struct Node {
 
     Node(int n = 0) : lambda(n + 1, 0.0), lower_bound(0.0), is_ciclo(false) {}
 
-    // função que calcula a 1-arvore
-    double calculateOneTree(const std::vector<std::vector<double>>& custoModificado, int n);
+    // calcula a 1-arvore
+    double calculateOneTree(const std::vector<std::vector<bool>>& is_forbidden, int n);
 };
 
 #endif

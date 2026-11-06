@@ -15,15 +15,15 @@ typedef vector<Edge> OneTree;
 
 class Kruskal{
 public:
-	Kruskal(const std::vector<std::vector<double>>& dist, int n);
+	Kruskal(const std::vector<double>& lambda, const std::vector<std::vector<bool>>& is_forbidden, int n);
 
 	double MST(int nodes);
 	OneTree getEdges();
 
-
 private:
 	priority_queue <pair<double,Edge>> graph;
 	vector <int> pset;
+	vector <int> rnk;
 	OneTree edges;
 
 	void initDisjoint(int n);

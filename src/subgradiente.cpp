@@ -6,18 +6,19 @@
 void SubgradienteSolver::assegurarBuffers(int n) {
     if (bufferSize == n) return;
 
-    custoModificado.assign(n + 1, std::vector<double>(n + 1, 0.0));
-    dist.assign(n + 1, std::vector<double>(n + 1, 0.0));
-
-    for (int i = 1; i <= n; i++)
-        for (int j = i + 1; j <= n; j++)
-            dist[i][j] = Data::getInstance().getDistance(i, j);
-
+    is_forbidden.assign(n + 1, std::vector<bool>(n + 1, false));
     bufferSize = n;
 }
 
 double SubgradienteSolver::run(Node& node, double UB, int n) {
     assegurarBuffers(n);
+
+    // marca so os arcos proibidos desse no na matriz booleana
+    // assim evita ficar criando matriz nova
+    for (const auto& arc : node.forbidden_arcs) {
+        is_forbidden[arc.first][arc.second] = true;
+        is_forbidden[arc.second][arc.first] = true;
+    }
 
     // melhor lower_bound, começa -infinito porque queremos maximizar
     // quanto maior, mais proximo do otimo com base no dual lagrangiano
@@ -40,20 +41,10 @@ double SubgradienteSolver::run(Node& node, double UB, int n) {
         double lambda_sum = 0.0;
         for (int i = 1; i <= n; i++) {
             lambda_sum += node.lambda[i];
-
-            for (int j = i+1; j <= n; j++) {
-                    custoModificado[i][j] = dist[i][j] - node.lambda[i] - node.lambda[j];
-            }
         }
 
-        // no calculo do Kruskal só entra o triangulo superior da matrix, por isso min e max de indices
-        // isso evitar ficar criando uma matrix de forbidden como eu estava fazendo e aplica só depois de todos os calculos
-        // já percorrendo direto os forbidden advindos do node em especifico
-        for (const auto& arc : node.forbidden_arcs)
-            custoModificado[std::min(arc.first, arc.second)][std::max(arc.first, arc.second)] = INFINITE;
-
-        // resolve 1-arvore e calcula w
-        double cost1Tree = node.calculateOneTree(custoModificado, n);
+        // resolve a 1-arvore passando os arcos proibidos e calcula o w
+        double cost1Tree = node.calculateOneTree(is_forbidden, n);
         double w = cost1Tree + 2.0 * lambda_sum;
 
         // calculo do somatorio
@@ -104,6 +95,13 @@ double SubgradienteSolver::run(Node& node, double UB, int n) {
     node.degrees = degrees_star;
     node.one_tree_edges = edges_star;
     node.is_ciclo = is_ciclo_star;
+
+    // desmarca os arcos proibidos no final pra matriz voltar ao estado limpo
+    // ai ela ja fica pronta pro proximo no sem precisar recriar nada
+    for (const auto& arc : node.forbidden_arcs) {
+        is_forbidden[arc.first][arc.second] = false;
+        is_forbidden[arc.second][arc.first] = false;
+    }
 
     return w_star;
 }

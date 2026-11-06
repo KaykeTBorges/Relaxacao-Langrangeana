@@ -7,10 +7,7 @@
 
 class SubgradienteSolver {
 private:
-    std::vector<std::vector<double>> custoModificado;
-    // aqui é uma melhoria, visto que as distancias são usadas n2 / 2 vezes
-    // foi visto muito em APA queria trazer para cá, para testar
-    std::vector<std::vector<double>> dist;
+    std::vector<std::vector<bool>> is_forbidden;
     int bufferSize = 0;
 
     void assegurarBuffers(int n);
