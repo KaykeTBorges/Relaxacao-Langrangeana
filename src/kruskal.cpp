@@ -1,8 +1,8 @@
 #include "kruskal.h"
 
 Kruskal::Kruskal(const std::vector<double>& lambda, const std::vector<std::vector<bool>>& is_forbidden, int n) {
-    // pega a distancia direto de data e desconta os lambdas so pras arestas que nao tao proibidas
-    // ja coloca com custo negativo porque a priority_queue do cpp ordena pelo maxHeap
+    // pega a distancia direto de data e desconta os lambdas so pras arestas que não tão proibidas
+    // já coloca com custo negativo porque a priority_queue do cpp tá ordenando pelo maxHeap
     for (int i = 2; i <= n; i++) {
         for (int j = i + 1; j <= n; j++) {
             if (!is_forbidden[i][j]) {

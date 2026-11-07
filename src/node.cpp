@@ -5,6 +5,9 @@ double Node::calculateOneTree(const std::vector<std::vector<bool>>& is_forbidden
     this->degrees.assign(n + 1, 0);
 
     // roda o kruskal de 2 ate n pra pegar a arvore geradora minima sem o vertice 1
+    // eu tive a primeira versão em que eu passava uma matriz, só que eu criava essa matriz
+    // todas as vezes apenas depois eu modificava e aplicava o valor de lambda dela, ai preencher uma matriz é custoso
+    // v2 logo pensei de uma forma de mandar e fazer o calculo direto, e conseguir os dados diretos, logo, passar as informações para quem usa
     Kruskal kruscal(this->lambda, is_forbidden, n);
     double costMst = kruscal.MST(n);
 
