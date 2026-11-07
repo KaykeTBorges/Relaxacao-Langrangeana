@@ -7,11 +7,6 @@ void SubgradienteSolver::assegurarBuffers(int n) {
     if (bufferSize == n) return;
 
     custoModificado.assign(n + 1, std::vector<double>(n + 1, 0.0));
-    dist.assign(n + 1, std::vector<double>(n + 1, 0.0));
-
-    for (int i = 1; i <= n; i++)
-        for (int j = i + 1; j <= n; j++)
-            dist[i][j] = Data::getInstance().getDistance(i, j);
 
     bufferSize = n;
 }
@@ -42,7 +37,7 @@ double SubgradienteSolver::run(Node& node, double UB, int n) {
             lambda_sum += node.lambda[i];
 
             for (int j = i+1; j <= n; j++) {
-                    custoModificado[i][j] = dist[i][j] - node.lambda[i] - node.lambda[j];
+                    custoModificado[i][j] = Data::getInstance().getDistance(i, j) - node.lambda[i] - node.lambda[j];
             }
         }
 
