@@ -14,8 +14,8 @@ class Data{
 public:
 	void read( int qtParam, char** argv );
 	void printMatrixDist();
-	inline int getDimension() const { return dimension; };
-	inline double getDistance(int i, int j) const { return distMatrix[i-1][j-1]; };
+	inline int getDimension(){ return dimension; };
+	inline double getDistance(int i, int j){ return distMatrix[i-1][j-1]; };
 	inline double **getMatrixCost(){return distMatrix.get(); }
 	inline double getXCoord(int i){return xCoord[i-1];}
 	inline double getYCoord(int i){return yCoord[i-1];}
